@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nginx Reverse Proxy Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        form {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .configs {
+            margin-top: 20px;
+        }
+        .config-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .config-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #2196F3;
+        }
+        .config-details {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+        }
+        .config-detail {
+            margin: 5px 0;
+            color: #666;
+        }
+        .delete-btn {
+            background-color: #f44336;
+        }
+        .delete-btn:hover {
+            background-color: #da190b;
+        }
+        .help-text {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .ip-info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            border: 1px solid #bbdefb;
+        }
+        .ip-info h3 {
+            margin-top: 0;
+            color: #1976D2;
+        }
+        .ip-detail {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #bbdefb;
+        }
+        .ip-label {
+            font-weight: bold;
+            color: #1976D2;
+        }
+        .copy-btn {
+            background-color: #2196F3;
+            padding: 2px 8px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Nginx Reverse Proxy Manager</h1>
+
+        <div class="ip-info">
+            <h3>Server IP Information</h3>
+            <div class="ip-detail">
+                <span class="ip-label">Public IP:</span>
+                <span>
+                    {{ public_ip }}
+                    <button class="copy-btn" onclick="copyToClipboard('{{ public_ip }}')">Copy</button>
+                </span>
+            </div>
+            <div class="ip-detail">
+                <span class="ip-label">Local IP:</span>
+                <span>
+                    {{ local_ip }}
+                    <button class="copy-btn" onclick="copyToClipboard('{{ local_ip }}')">Copy</button>
+                </span>
+            </div>
+        </div>
+        
+        <form action="{{ url_for('add_proxy') }}" method="POST">
+            <input type="text" name="name" placeholder="Configuration Name (e.g., my-api)" required>
+            <input type="text" name="domain" placeholder="Domain Name (e.g., api.example.com)" required>
+            <input type="text" name="target_host" placeholder="Target Host (e.g., localhost)" required>
+            <input type="number" name="target_port" placeholder="Target Port (e.g., 3000)" required>
+            <button type="submit">Add Proxy Configuration</button>
+        </form>
+
+        <div class="help-text">
+            <p><strong>How to use:</strong></p>
+            <ol>
+                <li>Make sure your domain's DNS is pointing to this server's IP address (shown above)</li>
+                <li>Enter a unique name for this configuration</li>
+                <li>Enter your domain name (e.g., example.com or api.example.com)</li>
+                <li>Enter the target host (use 'localhost' for local services)</li>
+                <li>Enter the target port where your service is running</li>
+            </ol>
+        </div>
+
+        <div class="configs">
+            <h2>Existing Configurations</h2>
+            {% for name, config in configs.items() %}
+            <div class="config-item">
+                <div class="config-header">
+                    <span class="config-name">{{ name }}</span>
+                    <a href="{{ url_for('delete_proxy', name=name) }}">
+                        <button class="delete-btn">Delete</button>
+                    </a>
+                </div>
+                <div class="config-details">
+                    <div class="config-detail">
+                        <strong>Domain:</strong> {{ config.domain }}
+                    </div>
+                    <div class="config-detail">
+                        <strong>Target Host:</strong> {{ config.target_host }}
+                    </div>
+                    <div class="config-detail">
+                        <strong>Target Port:</strong> {{ config.target_port }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert('Copied to clipboard!');
+            }).catch(function(err) {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+    </script>
+</body>
+</html> 

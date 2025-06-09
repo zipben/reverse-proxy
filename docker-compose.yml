@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - webapp
+    networks:
+      - proxy-network
+
+  webapp:
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+    volumes:
+      - ./webapp:/app
+      - ./nginx/conf.d:/nginx/conf.d
+    networks:
+      - proxy-network
+
+networks:
+  proxy-network:
+    driver: bridge 
