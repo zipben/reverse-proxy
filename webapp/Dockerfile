@@ -1,10 +1,10 @@
 FROM python:3.9-slim
 
-WORKDIR /webapp
+WORKDIR /app
 
-COPY requirements.txt .
+COPY webapp/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY webapp /app
 
 CMD ["flask", "run", "--host=0.0.0.0"] 

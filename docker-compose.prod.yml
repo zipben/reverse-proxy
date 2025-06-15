@@ -13,8 +13,8 @@ services:
 
   webapp:
     build:
-      context: https://github.com/zipben/reverse-proxy.git
-      dockerfile: webapp/Dockerfile
+      context: https://github.com/zipben/reverse-proxy.git#main
+      dockerfile: /Dockerfile
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=production
